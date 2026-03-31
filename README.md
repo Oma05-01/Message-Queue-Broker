@@ -2,13 +2,14 @@
 A from-scratch implementation of a Kafka-like distributed message broker to understand append-only logs, consumer offsets, partitioning, and delivery reliability tradeoffs, not a production replacement for Kafka or RabbitMQ.
 
 ## Why This Project Exists
-- Modern systems rely heavily on message brokers and event-streaming platforms to decouple services, process data asynchronously, and handle high-throughput event streams. Systems like Kafka and RabbitMQ sit at the heart of distributed architectures.
-- This project was built to understand the internal mechanics behind event brokers, particularly:
+Modern systems rely heavily on message brokers and event-streaming platforms to decouple services, process data asynchronously, and handle high-throughput event streams. Systems like Kafka and RabbitMQ sit at the heart of distributed architectures.
+
+This project was built to understand the internal mechanics behind event brokers, particularly:
 - How append-only disk I/O enables high-speed persistent storage
 - How independent consumer offsets allow decoupled reading and message replay
 - How partitioning solves single-log bottlenecks to enable parallel throughput
 - How consumer groups cooperate and automatically rebalance workloads
-- How reliability mechanisms (ACKs, NACKs, and Dead Letter Queues) enforce delivery guarantees
+- How reliability mechanisms (ACKs, NACKs, and Dead Letter Queues) enforce delivery guarantees.
 
 The goal was to close the gap between using message brokers via client libraries and understanding the distributed system primitives that power them.
 
