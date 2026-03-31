@@ -80,6 +80,7 @@ The broker is composed of several core components
 
 ## Key Design Decisions
 **1 — Append-Only Logs for Storage**
+
 The underlying storage mechanism relies strictly on appending JSON lines to text files.
 
 **Tradeoff:**
@@ -88,6 +89,7 @@ The underlying storage mechanism relies strictly on appending JSON lines to text
 
 
 **2 — Client-Side Offset Tracking**
+
 The logs themselves do not track what has been read; consumers update an external OffsetStore.
 
 **Tradeoff:**
@@ -96,6 +98,7 @@ The logs themselves do not track what has been read; consumers update an externa
 
 
 **3 — Deterministic Hashing for Partitioning**
+
 Partition routing uses a custom polynomial hash: hash(key) % N.
 
 **Tradeoff:**
@@ -104,6 +107,7 @@ Partition routing uses a custom polynomial hash: hash(key) % N.
 
 
 **4 — Round-Robin Rebalancing**
+
 When a consumer joins or leaves, partitions are reassigned strictly via index modulo math.
 
 **Tradeoff:**
@@ -112,6 +116,7 @@ When a consumer joins or leaves, partitions are reassigned strictly via index mo
 
 
 **5 — At-Least-Once Delivery Semantics**
+
 The broker registers a message as pending until explicitly acknowledged.
 
 **Tradeoff:**
@@ -120,6 +125,7 @@ The broker registers a message as pending until explicitly acknowledged.
 
 
 ## Performance Characteristics
+
 This broker prioritizes educational clarity and predictable behavior over raw I/O performance.
 
 **Write Performance**
@@ -131,18 +137,22 @@ Publishing operations are O(1).
 - entirely lock-free writes against the underlying logs
 
 **Read Performance**
+
 Consumption operations are generally O(1) sequential reads.
+
 However, point-in-time replays (seeking to a random offset) are O(n) because the system must scan the text file to find the correct line. Real systems solve this with binary index files mapping offsets to byte positions.
 
 **Concurrency Limits**
+
 Parallelism is bound by the number of partitions.
 - $N$ partitions allow exactly $N$ concurrent consumers in a single group.
 - Adding consumers beyond $N$ results in idle consumers.
 
 **Reliability Overhead**
+
 The ACK/NACK state machine introduces slight overhead:
-tracking _pending messages in memory
-a periodic $O(P)$ scan (where $P$ is pending messages) to detect and redeliver timeouts
+- tracking _pending messages in memory
+- a periodic $O(P)$ scan (where $P$ is pending messages) to detect and redeliver timeouts
 
 ## Failure Modes & Limitations
 
@@ -185,7 +195,9 @@ Workloads can scale horizontally without manual partition assignment or risk of 
 **Test:**
 A consumer pulled a message from the queue, simulating a crash by halting execution without calling ack().
 
-**Observation:**After the 2.0-second timeout, the broker scanned the _pending state, moved the message back to _ready, and incremented its attempt counter.
+**Observation:**
+After the 2.0-second timeout, the broker scanned the _pending state, moved the message back to _ready, and incremented its attempt counter.
+
 **Impact:**
 No data loss occurred, but the system demonstrated why idempotency on the consumer side is mandatory for distributed reliability.
 
