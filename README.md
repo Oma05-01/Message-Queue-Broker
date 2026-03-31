@@ -53,7 +53,7 @@ The broker is composed of several core components
  Storage (Disk)    (JSON)      Queue (DLQ)
  ```
  
-Core Components
+## Core Components
 **Broker Engine**
 - Central coordinator holding all runtime state.
 - Manages topic creation, routing publications, and servicing consumer requests.
